@@ -213,6 +213,7 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
             
             if patient_data == "-esc":
                 return
+            
         else:
             patient_data = id_num_key
         # ************************************************************************************ #
@@ -341,6 +342,8 @@ def check_input(type_field,data_field = "", input_field = ""):
             print(""),
             if patient_data == "-esc":
                 return "-esc"
+            if patient_data == "-quit":
+                quit()
         else:
             patient_data = data_field
         # ******************************************************************************************* #
@@ -705,7 +708,7 @@ print("Welcome to the Patient Management System (BETA)\n\n\
 Today is %s\nWeek: %s" % (today.strftime("%A %d %B %Y"),week[1]))
 
 print("")
-print("You can abort this program at any time by typing ctrl+D; however, all changes will be lost")
+print("At any time, to cancel an input, please type \"-esc\"(do not include the quotes), and to exit the program, kindly, type \"-quit\" (without the quotes as well)")
 
 while True:
     show_menu(current_menu)
