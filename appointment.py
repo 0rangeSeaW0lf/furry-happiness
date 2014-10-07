@@ -479,7 +479,7 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
             # ************************************************************************************ #
             if type_field == "add":
                 print("")
-                print("Please consult with the Dr. Reyes before booking an appointment during the weekend or Public Holiday")
+                print("Please check with the Dr. Reyes before booking an appointment during the weekend or Public Holiday\n")
                 appt_date = check_input("date","","Date (DD/MM/YYYY):")
                 if appt_date == "-esc":
                     return
