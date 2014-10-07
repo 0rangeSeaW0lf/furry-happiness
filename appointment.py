@@ -714,6 +714,9 @@ while True:
     show_menu(current_menu)
     user_input = raw_input("> ")
     # Check options is an integer and within the range of menu options
+    if user_input == "-quit" or user_input == "-esc":
+        quit()
+        
     if user_input.isdigit() and int(user_input) < len(current_menu) and user_input != 0:
         user_input = int(user_input)
         if current_menu[user_input][1] == "-QUIT":
