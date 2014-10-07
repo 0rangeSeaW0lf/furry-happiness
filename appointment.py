@@ -143,6 +143,9 @@ no_appt_scheduled = "No appointments scheduled"
 # Menu Management
 # ------------------------------------------------------------------------------------------------ #
 # Generate the displayed menu
+# Input: Menu List
+# Output: Display Menu
+
 def show_menu(menu):
     print("")
     print(menu[0])
@@ -153,6 +156,9 @@ def show_menu(menu):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to confirm inputs from the user
 # ------------------------------------------------------------------------------------------------ #
+# 
+# Input: User Input (character y, n or any other specific one - e.g. letter R)
+# Output: True, False or the specific character
 
 def user_confirmation(value):
     while True:
@@ -171,7 +177,8 @@ def user_confirmation(value):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to generate Menus and validate user input on selection
 # ------------------------------------------------------------------------------------------------ #
-
+# Input: List
+# Output: Display menu
 def menu_pick(menu,extra = ""):
     while True:
         show_menu(menu)
@@ -191,6 +198,9 @@ def menu_pick(menu,extra = ""):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to manage patient records
 # ------------------------------------------------------------------------------------------------ #
+#
+# Input: Action (add, modify, delete or search), Patient ID
+# Output: Patient Information (including scheduled appointments) or the addition, modification or deletion of an appointment
 
 def patient_management(type_field, id_num_key = "", not_found = 0):
     while True:
@@ -313,6 +323,8 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to check inputs and format them according to certain parameters
 # ------------------------------------------------------------------------------------------------ #
+# Input: User input or variable
+# Output: Formatted and valid data input 
 
 def check_input(type_field,data_field = "", input_field = ""):
     global current_day
@@ -459,6 +471,10 @@ def check_input(type_field,data_field = "", input_field = ""):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to manage appointments
 # ------------------------------------------------------------------------------------------------ #
+# Add, modify and delete appointments
+# Inputs: patient ID, date and time
+# Output: appointment in patient's record and all_appointments dic
+
 def patient_appointment(type_field,patient_data = "", appointment_info = {}):
     appointment_info = {}
     while True:
@@ -571,6 +587,10 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to send an e-mail
 # ------------------------------------------------------------------------------------------------ #
+# Send reminders to patients
+# Input: Patient's data (Full name, e-mail, next appoitment date and time)
+# Output: e-mail send to the patient
+
 def send_message(name,to_address, time, date):
     from_address = 'test.dra.reyes@gmail.com'
     # Declare a MIME type message
@@ -597,6 +617,9 @@ def send_message(name,to_address, time, date):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to show scheduled appointments:
 # ------------------------------------------------------------------------------------------------ #
+# Show coming appointments
+# Input: specific date (e.g. today), appointment dictionary
+# Output: appointments scheduled for the desired date range or a message if there are not any.
 
 def scheduled_appointments(field,kwargs,kw):
     w_day = today.isoweekday()
@@ -642,7 +665,10 @@ def scheduled_appointments(field,kwargs,kw):
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to send a reminder
 # ------------------------------------------------------------------------------------------------ #
-    
+# Procedure to pick the dates and patient to be reminded about their appointments
+# Input: Appointment Dictionary
+# Output: Total number of reminders sent
+
 def send_remider(patient_appts):
     tomorrow = today + timedelta(1)
         
@@ -677,6 +703,9 @@ def send_remider(patient_appts):
 
 print("Welcome to the Patient Management System (BETA)\n\n\
 Today is %s\nWeek: %s" % (today.strftime("%A %d %B %Y"),week[1]))
+
+print("")
+print("You can abort this program at any time by typing ctrl+D; however, all changes will be lost")
 
 while True:
     show_menu(current_menu)
