@@ -335,6 +335,7 @@ def check_input(type_field,data_field = "", input_field = ""):
         # ID Number
         # ******************************************************************************************* #
         if type_field == "id_num" or type_field == "id_num_key":
+            patient_data = patient_data.translate(None,"-")
             if ((patient_data[0] in ["v","e"] and patient_data[1:].isdigit()) or patient_data[0] == "p") and len(patient_data) > 5:
                 if type_field == "id_num":
                     return "{}-{}".format(patient_data[0].upper(), patient_data[1:].upper())

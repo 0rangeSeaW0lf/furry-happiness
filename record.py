@@ -13,7 +13,7 @@ class Patient(object):
         self.next_appt_reminder = False
         
     def __str__(self):
-		return "Patient Name: {}\nDate of Birth: {}\nGender: {}\nE-mail: {}".format(self.id_num,self.full_name, self.dob, self.gender,self.email)
+		return "Patient Name: {}\nDate of Birth: {}\nGender: {}\nE-mail: {}".format(self.full_name, self.dob, self.gender,self.email)
 
     def update_record(self,type_field,value):
         setattr(self, type_field, value)
