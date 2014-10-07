@@ -256,13 +256,16 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                         option = menu_pick(patient_record_fields)
                         try:
                             print(input_rules[option])
-                            new_value = check_input(option)
-                            
-                            all_patients[patient_data].update_record(option,new_value)
                             if option == "id_num":
-                                new_value = check_input("id_num_key",new_value)
+                                new_value = check_input("id_num_key")
                                 all_patients[new_value] = all_patients[patient_data]
                                 del all_patients[patient_data]
+                                patient_data = new_value
+                                new_value = check_input("id_num",new_value)
+                            else:
+                                new_value = check_input(option)
+                                
+                            all_patients[patient_data].update_record(option,new_value)
                             
                             print("Do you want to modify other field or record (Y/n)?\nYou can also press 'R' to modify other patient record")
                             confirm = user_confirmation("R")
@@ -436,7 +439,7 @@ def check_input(type_field,data_field = "", input_field = ""):
                         return(check_input("time","", "Time (am/pm):"))
                 # Check whether the desired hour is within business hours
                 if (appt_time >= time(8) and appt_time < time (10)) or (appt_time >= time(18) and appt_time < time(21)):
-                    print("The chosen time is out of regular hours")
+                    print("The chosen time is out of regular business hours")
                     print("Do you still want to proceed (Y/n)?")
                     if user_confirmation(""):
                         return appt_time.strftime("%I:%M %p")
@@ -444,7 +447,7 @@ def check_input(type_field,data_field = "", input_field = ""):
                         return check_input("time","","New Time (am/pm):")
                 # Check whether the desired hour is not within the allowed hours
                 elif appt_time >= time(21) or appt_time < time(8):
-                    print("Sorry the hour is not allowed. Please try again")
+                    print("Sorry the desired hour is not allowed. Please try again")
                     return(check_input("time","","New Time (am/pm):"))
                 else:
                     return appt_time.strftime("%I:%M %p")
