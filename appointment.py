@@ -158,9 +158,9 @@ def user_confirmation(value):
     while True:
         confirmation = raw_input("> ")
         print("")
-        if confirmation == "Y":
+        if confirmation in ["Y","y"]:
             return True
-        elif confirmation == "n":
+        elif confirmation in ["n","N"]:
             return False
         # Verify whether value was chosen and is not empty
         elif confirmation == value and confirmation !="":
@@ -253,12 +253,16 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                     # ************************************************************************ #
                     if type_field == "modify":
                         print("\nPatient Name: {} {}".format(all_patients[patient_data].given_name,all_patients[patient_data].surname))
-                        #Check this option
                         option = menu_pick(patient_record_fields)
                         try:
                             print(input_rules[option])
                             new_value = check_input(option)
+                            
                             all_patients[patient_data].update_record(option,new_value)
+                            if option == "id_num":
+                                new_value = check_input("id_num_key",new_value)
+                                all_patients[new_value] = all_patients[patient_data]
+                                del all_patients[patient_data]
                             
                             print("Do you want to modify other field or record (Y/n)?\nYou can also press 'R' to modify other patient record")
                             confirm = user_confirmation("R")
@@ -274,9 +278,11 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                     # Search a patient record
                     # ************************************************************************ #
                     if type_field == "search":
+                        #Print patient record
                         print(all_patients[patient_data])
+                        # Print appointments
                         appts = all_patients[patient_data].appointments("show","")
-                        if appts == 0:
+                        if appts == 0: # In case there are no appointments linked
                             print("No scheduled appointments found")
                             return
                         return
@@ -314,7 +320,7 @@ def check_input(type_field,data_field = "", input_field = ""):
             print("")
         if not input_field:
             input_field = ">"
-
+        # User input if data_field was not provided.
         if not data_field:
             patient_data = raw_input("%s " % input_field).lower()
             print(""),
@@ -512,6 +518,9 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
                 else:
                     return
             else:
+                # ************************************************************************************ #
+                # Modify or Delete Appointments
+                # ************************************************************************************ #
                 appts = all_patients[patient_data].appointments("show","")
                 if appts == 0:
                     print("No scheduled appointments found")
@@ -530,10 +539,12 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
                             user_input = int(user_input)
                             if user_input <= appts:
                                 user_input -= 1
+                                # Delete an appointment
                                 appointment_info["delete"] = user_input
                                 del all_appointments[all_patients[patient_data].next_appointments[user_input][0]][all_patients[patient_data].next_appointments[user_input][1]]
                                 all_patients[patient_data].appointments("delete",appointment_info)
                                 if type_field == "modify":
+                                    # Add an appoitment after it was deleted -> Modify an appointment
                                     return patient_appointment("add",patient_data,appointment_info)
                             print("Do you want to delete another appointment (Y/n)?")
                             if user_confirmation(""):
@@ -558,10 +569,12 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
 # ------------------------------------------------------------------------------------------------ #
 def send_message(name,to_address, time, date):
     from_address = 'test.dra.reyes@gmail.com'
+    # Declare a MIME type message
     msg = MIMEMultipart()
     msg['From'] = from_address
     msg['To'] = to_address
     msg['Subject'] = "Your doctor's appointment is soon!"
+    # E-mail Message
     body = "Dear %s,\n\nYour doctor\'s appointment is on %s at %s.\n\nIf you need to change or cancel it, please contact us.\n\nThanks!\n\n\nThe doctor's office team" % (name,date, time)
     msg.attach(MIMEText(body, 'plain'))
     msg = msg.as_string()
