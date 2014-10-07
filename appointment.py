@@ -177,7 +177,7 @@ def menu_pick(menu,extra = ""):
             print("Please choose a valid option!")
 
 # ------------------------------------------------------------------------------------------------ #
-# Procedure to manage patient records 
+# Procedure to manage patient records
 # ------------------------------------------------------------------------------------------------ #
 
 def patient_management(type_field, id_num_key = "", not_found = 0):
@@ -185,7 +185,7 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
         if not id_num_key:
             print(input_rules["id_num"])
             print("")
-            print("Please type the official ID number of the patient:\n")
+            print("Please type the official ID number of the patient (e.g. v12345):\n")
             
             patient_data = check_input("id_num_key","","")
             
@@ -246,6 +246,7 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                             print(input_rules[option])
                             new_value = check_input(option)
                             all_patients[patient_data].update_record(option,new_value)
+                            
                             print("Do you want to modify other field or record (Y/n)?\nYou can also press 'R' to modify other patient record")
                             confirm = user_confirmation("R")
                             if confirm == True:
@@ -264,6 +265,7 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                         appts = all_patients[patient_data].appointments("show","")
                         if appts == 0:
                             print("No scheduled appointments found")
+                            return
                         return
                     return
             else:
@@ -278,13 +280,13 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                     print("No patient record linked to the ID number %s was found again.\nDo you want to try again (Y/n) or create a new record (press 'R')?" % check_input("id_num",patient_data))
                     confirm = user_confirmation("R")
                     if confirm == True:
-                        return
+                        return patient_management(type_field,"","1")
                     elif confirm == "R":
                         print("ID Number: %s" % check_input("id_num", patient_data, ""))
                         print("")
                         return patient_management("add",patient_data)
                     else:
-                        return patient_management(type_field,"","1")
+                        return
 
 # ------------------------------------------------------------------------------------------------ #
 # Procedure to check inputs and format them according to certain parameters
@@ -329,12 +331,15 @@ def check_input(type_field,data_field = "", input_field = ""):
             patient_data = patient_data.split("/")
             try:
                 patient_data = date(int(patient_data[2]),int(patient_data[1]),int(patient_data[0]))
-                print("Please confirm the date of birth (Y/n):")
-                print("{} ({} years old)".format(patient_data.strftime("%d %B %Y"),(int((today-patient_data).total_seconds()/(365.25*24*60*60)))))
-                if user_confirmation(""):
-                    return patient_data.strftime("%d %B %Y")
+                if patient_data - today < timedelta(1) and today - patient_data < timedelta(43830): # timedelta 1 so today could be add and 43830 is the days equivalent of 120 years.
+                    print("Please confirm the date of birth (Y/n):")
+                    print("{} ({} years old)".format(patient_data.strftime("%d %B %Y"),(int((today-patient_data).total_seconds()/(365.25*24*60*60)))))
+                    if user_confirmation(""):
+                        return patient_data.strftime("%d %B %Y")
+                    else:
+                        return check_input("dob","","Date of Birth: ")
                 else:
-                    return check_input("dob","","Date of Birth: ")
+                    pass
             except:
                 pass
         # ******************************************************************************************* #
@@ -364,6 +369,9 @@ def check_input(type_field,data_field = "", input_field = ""):
                 current_day = (appt_date - today) < timedelta(1)
                 if appt_date - today < timedelta(0):
                     print("The chosen date is in the past. Please, try again")
+                    return check_input("date","","New Date: ")
+                elif appt_date - today > timedelta(1826): # 5 years (including leap year)
+                    print("The chosen date is too far in the future. Please, try again")
                     return check_input("date","","New Date: ")
                 elif appt_date.isoweekday() > 5:
                     print("%s is %s" % (appt_date.strftime("%d %B %Y"), appt_date.strftime("%A")))
@@ -428,7 +436,7 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
         if not patient_data:
             print(input_rules["id_num"])
             print("")
-            print("Please type the official ID number of the patient:\n")
+            print("Please type the official ID number of the patient (e.g. v12345):\n")
             
             patient_data = check_input("id_num_key")
             print("")
@@ -623,9 +631,6 @@ def send_remider(patient_appts):
 
 print("Welcome to the Patient Management System (BETA)\n\n\
 Today is %s\nWeek: %s" % (today.strftime("%A %d %B %Y"),week[1]))
-
-print(all_appointments)
-print(all_patients)
 
 while True:
     show_menu(current_menu)
