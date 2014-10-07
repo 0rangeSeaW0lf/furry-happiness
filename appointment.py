@@ -19,13 +19,13 @@
 
 from datetime import date,time,timedelta,datetime # use to manage all dates
 from re import findall,search # Regular Expressions Library. This library was used to perform a basic e-mail format validation.
-import pickle
+import pickle #Backup and restore patients and appointments' data
 
 from record import Patient #Patient class (record.py)
 
-import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
+import smtplib # required to send e-mails
+from email.MIMEMultipart import MIMEMultipart #required to send formatted emails.
+from email.MIMEText import MIMEText # Same as above
 
 # ================================================================================================ #
 # Dictionaries
@@ -35,6 +35,7 @@ from email.MIMEText import MIMEText
 # ------------------------------------------------------------------------------------------------ #
 #Patient records
 # ------------------------------------------------------------------------------------------------ #
+# Load patient records in the program
 try:
     all_patients = pickle.load(open( "patients.p", "rb" ))
 except:
@@ -44,7 +45,7 @@ except:
 # ------------------------------------------------------------------------------------------------ #
 # Patient's appointments
 # ------------------------------------------------------------------------------------------------ #
-
+# Load patient appointments in the program
 try:
     all_appointments = pickle.load(open( "appointments.p", "rb" ))
 except:
@@ -101,7 +102,7 @@ main_menu_list = ["MAIN MENU",
 # ------------------------------------------------------------------------------------------------ #
 # Patient Information Rules Text
 # ------------------------------------------------------------------------------------------------ #
-
+# Rules to be display when one of the keys is  called
 input_rules = {"id_num":"For Venezuelan citizens, please type the letter 'v' followed by the national ID number.\nFor Alien Residents, please type the letter 'e' followed by the national ID number\nFor all other foreign citizens, please type the letter 'p' followed by the passport number.","given_name":"Please type the name as shown on the official ID.","surname":"Please type the name as shown on the official ID.","dob":"Please type the date of birth of the patient (DD/MM/YYYY)","gender": "Please type M for Male and F for Female", "email":"Remember that a valid address should include a domain and extension (e.g. john.doe@internet.com)"}
 
 
@@ -109,20 +110,28 @@ input_rules = {"id_num":"For Venezuelan citizens, please type the letter 'v' fol
 #Variables and genera lists
 # ================================================================================================ #
 
+# Current date - used in multiple procedures and displayed when the program starts.
 today = date.today(); today_ISO = today.isoformat()
 
+# Week Number
 week = today.isocalendar()
 
+# Patient Records Fields
 patient_record_fields = ["PATIENT RECORD FIELDS",["ID number","id_num"],["Given Name","given_name"],["Surname","surname"],["Date of Birth","dob"], ["Gender","gender"], ["E-mail","email"]]
 
+# Variable to control the functionality among menus
 current_menu = main_menu_list
 
+# Most used error message
 error_input = "Error, please type a valid input!\n"
 
+# Variables containing main menus
 menus = ["main_menu_list","scheduled_appt_list","patients_list","appt_list","settings_list"]
 
+#Official Public Holidays in Venezuela
 fixed_public_holidays = ["1/1","23/1","19/4","1/5","24/6","5/7","24/7","12/10","24/12","25/12","31/12"]
 
+# Message shown when no appointments were found.
 no_appt_scheduled = "No appointments scheduled"
 
 
@@ -133,11 +142,12 @@ no_appt_scheduled = "No appointments scheduled"
 # ------------------------------------------------------------------------------------------------ #
 # Menu Management
 # ------------------------------------------------------------------------------------------------ #
-
+# Generate the displayed menu
 def show_menu(menu):
     print("")
     print(menu[0])
     print("="*(len(menu[0])+1))
+    # Generate a visual menu based on the menu list
     for item in range(1,len(menu)):
         print("%d. %s") % (item,menu[item][0])
 # ------------------------------------------------------------------------------------------------ #
@@ -152,6 +162,7 @@ def user_confirmation(value):
             return True
         elif confirmation == "n":
             return False
+        # Verify whether value was chosen and is not empty
         elif confirmation == value and confirmation !="":
             return value
         else:
@@ -169,6 +180,7 @@ def menu_pick(menu,extra = ""):
         else:
             print("%d. Return to the previous menu") % len(menu)
         user_input = raw_input("> ")
+        # Verify the input is a number
         if user_input.isdigit() and int(user_input) in range(1,len(menu) + 1):
             if int(user_input) == len(menu):
                 return ""
@@ -206,6 +218,7 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                     return
             else:
                 patient_record = {}; patient_record = {"id_num":check_input("id_num",patient_data)}
+                # Iterate to add the different fields required in the patient record
                 for field in range(2,len(patient_record_fields)):
                     print("")
                     print(input_rules[patient_record_fields[field][1]])
@@ -367,12 +380,15 @@ def check_input(type_field,data_field = "", input_field = ""):
                 patient_data[2], patient_data[1], patient_data[0] = int(patient_data[2]),int(patient_data[1]),int(patient_data[0])
                 appt_date = date(patient_data[2], patient_data[1], patient_data[0])
                 current_day = (appt_date - today) < timedelta(1)
+                # Check that the date is not in the past
                 if appt_date - today < timedelta(0):
                     print("The chosen date is in the past. Please, try again")
                     return check_input("date","","New Date: ")
+                # Check that the date is not 5 years
                 elif appt_date - today > timedelta(1826): # 5 years (including leap year)
-                    print("The chosen date is too far in the future. Please, try again")
+                    print("The chosen date is too far in the future (more than 5 years). Please, try again")
                     return check_input("date","","New Date: ")
+                # Check whether the date is on a business day
                 elif appt_date.isoweekday() > 5:
                     print("%s is %s" % (appt_date.strftime("%d %B %Y"), appt_date.strftime("%A")))
                     print("Do you still want to proceed (Y/n)?")
@@ -380,6 +396,7 @@ def check_input(type_field,data_field = "", input_field = ""):
                         return appt_date.strftime("%d-%b-%y"),appt_date.strftime("%A")
                     else:
                         return check_input("date","","New Date (DD/MM/YYYY):")
+                # Check whether the date is a public holiday
                 elif ("%s/%s" % (appt_date.day,appt_date.month)) in fixed_public_holidays:
                     print("%s is a Public Holiday" % appt_date.strftime("%d %B %Y"))
                     print("Do you still want to proceed (Y/n)?")
@@ -406,11 +423,12 @@ def check_input(type_field,data_field = "", input_field = ""):
                 
             if isinstance(appt_time,int):
                 appt_time = time(appt_time)
+                # Check whether the desired hour is not in the past
                 if current_day:
                     if (datetime.combine(today,appt_time) - datetime.now()) < timedelta(0):
                         print("The chosen time is in the past. Please, try again")
                         return(check_input("time","", "Time (am/pm):"))
-                
+                # Check whether the desired hour is within business hours
                 if (appt_time >= time(8) and appt_time < time (10)) or (appt_time >= time(18) and appt_time < time(21)):
                     print("The chosen time is out of regular hours")
                     print("Do you still want to proceed (Y/n)?")
@@ -418,6 +436,7 @@ def check_input(type_field,data_field = "", input_field = ""):
                         return appt_time.strftime("%I:%M %p")
                     else:
                         return check_input("time","","New Time (am/pm):")
+                # Check whether the desired hour is not within the allowed hours
                 elif appt_time >= time(21) or appt_time < time(8):
                     print("Sorry the hour is not allowed. Please try again")
                     return(check_input("time","","New Time (am/pm):"))
@@ -445,11 +464,21 @@ def patient_appointment(type_field,patient_data = "", appointment_info = {}):
                 return False
             
         if patient_data in all_patients:
+            # ************************************************************************************ #
+            # Add a new patient appointment
+            # ************************************************************************************ #
             if type_field == "add":
+                print("")
+                print("Please consult with the Dr. Reyes before booking an appointment during the weekend or Public Holiday")
                 appt_date = check_input("date","","Date (DD/MM/YYYY):")
                 if appt_date == "-esc":
                     return
                 appointment_info["add"] = [appt_date]
+                # I know I can use \n to put all the text in a single print call
+                print("")
+                print("Normal Business Hours: 10:00am - 06:00pm")
+                print("Extended Business Hours: 08:00 - 10:00am and 06:00pm - 09:00pm")
+                print("Any other hour is not allowed.")
                 appt_time = check_input('time',"","Time (am/pm):")
                 if appt_time == "-esc":
                     return

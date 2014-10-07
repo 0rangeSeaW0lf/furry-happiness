@@ -6,6 +6,7 @@ class Patient(object):
     next_appointments  = []
 
     def __init__(self, **kwargs):
+        #unpack the dictionary with all the patient records
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.full_name = "%s %s" % (self.given_name, self.surname)
@@ -34,6 +35,7 @@ class Patient(object):
             else:
                 return 0
         else:
+            # append appointments
             if "add" in kw:
                 self.next_appointments += [[kw["add"][0][0],kw["add"][1]]]
                 self.next_appointments.sort()
