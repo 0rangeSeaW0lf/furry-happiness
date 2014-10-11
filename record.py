@@ -1,4 +1,3 @@
-#import smtplib
 from datetime import date
 
 class Patient(object):
