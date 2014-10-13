@@ -255,6 +255,14 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                         print("Are you sure you want to delete the patient record of {} {} ({}) (Y/n)?".format(all_patients[patient_data].given_name,all_patients[patient_data].surname, all_patients[patient_data].id_num))
                         if user_confirmation(""):
                             document = all_patients[patient_data].id_num
+                            # Delete appointments
+                            print all_appointments
+                            for day in all_appointments.keys():
+                                for time in all_appointments[day].keys():
+                                    if all_appointments[day][time] == patient_data:
+                                        print all_appointments[day][time]
+                                        del all_appointments[day][time]
+                            print all_appointments
                             del all_patients[patient_data]
                             print("The patient record linked to the ID number %s was successfully deleted" % document)
                         return
@@ -707,14 +715,14 @@ def send_remider(patient_appts):
 print("Welcome to the Patient Management System (BETA)\n\n\
 Today is %s\nWeek: %s" % (today.strftime("%A %d %B %Y"),week[1]))
 
-print("")
-print("At any time, to cancel an input, please type \"-esc\"(do not include the quotes), and to exit the program, kindly, type \"-quit\" (without the quotes as well)")
-
 while True:
     show_menu(current_menu)
+    print("\nIMPORTANT -> At any time, to cancel an input, please type \"-esc\"(do not include the quotes), and to exit the program, kindly, type \"-quit\" (without the quotes as well)\n")
     user_input = raw_input("> ")
     # Check options is an integer and within the range of menu options
     if user_input == "-quit" or user_input == "-esc":
+        pickle.dump(all_patients, open("patients.p", "wb"))
+        pickle.dump(all_appointments, open("appointments.p", "wb"))
         quit()
         
     if user_input.isdigit() and int(user_input) < len(current_menu) and user_input != 0:
