@@ -171,6 +171,10 @@ def user_confirmation(value):
         # Verify whether value was chosen and is not empty
         elif confirmation == value and confirmation !="":
             return value
+        elif confirmation == "-esc":
+            return "-esc"
+        elif confirmation == "-quit":
+            return quit_program()
         else:
             print("Wrong input. Please type 'Y' for Yes or 'n' for No")
 
@@ -187,6 +191,11 @@ def menu_pick(menu,extra = ""):
         else:
             print("%d. Return to the previous menu") % len(menu)
         user_input = raw_input("> ")
+        # Exit program
+        if user_input == "-quit":
+            return quit_program()
+        elif user_input == "-esc":
+            return
         # Verify the input is a number
         if user_input.isdigit() and int(user_input) in range(1,len(menu) + 1):
             if int(user_input) == len(menu):
@@ -315,6 +324,8 @@ def patient_management(type_field, id_num_key = "", not_found = 0):
                     Do you want to try again (Y/n)?" % check_input("id_num",patient_data))
                     if not user_confirmation(""):
                         return
+                    elif user_confirmation("") == "esc":
+                        return
                     else:
                         return patient_management(type_field,"","1")
                 else:
@@ -351,7 +362,7 @@ def check_input(type_field,data_field = "", input_field = ""):
             if patient_data == "-esc":
                 return "-esc"
             if patient_data == "-quit":
-                quit()
+                return quit_program()
         else:
             patient_data = data_field
         # ******************************************************************************************* #
@@ -382,6 +393,8 @@ def check_input(type_field,data_field = "", input_field = ""):
                     print("{} ({} years old)".format(patient_data.strftime("%d %B %Y"),(int((today-patient_data).total_seconds()/(365.25*24*60*60)))))
                     if user_confirmation(""):
                         return patient_data.strftime("%d %B %Y")
+                    elif user_confirmation("") == "-esc":
+                        return "-esc"
                     else:
                         return check_input("dob","","Date of Birth: ")
                 else:
@@ -435,6 +448,8 @@ def check_input(type_field,data_field = "", input_field = ""):
                     print("Do you still want to proceed (Y/n)?")
                     if user_confirmation(""):
                         return appt_date.strftime("%d-%b-%y"),appt_date.strftime("%A")
+                    elif user_confirmation("") == "-esc":
+                        return "-esc"
                     else:
                         return check_input("date","","New Date (DD/MM/YYYY):")
                 else:
@@ -467,6 +482,8 @@ def check_input(type_field,data_field = "", input_field = ""):
                     print("Do you still want to proceed (Y/n)?")
                     if user_confirmation(""):
                         return appt_time.strftime("%I:%M %p")
+                    elif user_confirmation("") == "-esc":
+                        return "-esc"
                     else:
                         return check_input("time","","New Time (am/pm):")
                 # Check whether the desired hour is not within the allowed hours
@@ -703,6 +720,11 @@ def send_remider(patient_appts):
     else:
         print("%s reminders were sent" % total)
     print("")
+    
+def quit_program():
+    pickle.dump(all_patients, open("patients.p", "wb"))
+    pickle.dump(all_appointments, open("appointments.p", "wb"))
+    quit()
                 
 # ================================================================================================ #
 # Main Block
@@ -721,9 +743,7 @@ while True:
     user_input = raw_input("> ")
     # Check options is an integer and within the range of menu options
     if user_input == "-quit" or user_input == "-esc":
-        pickle.dump(all_patients, open("patients.p", "wb"))
-        pickle.dump(all_appointments, open("appointments.p", "wb"))
-        quit()
+        quit_program()
         
     if user_input.isdigit() and int(user_input) < len(current_menu) and user_input != 0:
         user_input = int(user_input)
