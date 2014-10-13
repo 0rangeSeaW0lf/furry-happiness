@@ -742,7 +742,7 @@ while True:
     print("\nIMPORTANT -> At any time, to cancel an input, please type \"-esc\"(do not include the quotes), and to exit the program, kindly, type \"-quit\" (without the quotes as well)\n")
     user_input = raw_input("> ")
     # Check options is an integer and within the range of menu options
-    if user_input == "-quit" or user_input == "-esc":
+    if user_input == "-quit":
         quit_program()
         
     if user_input.isdigit() and int(user_input) < len(current_menu) and user_input != 0:
